@@ -124,7 +124,7 @@ fun ProfileScreen(
             is ProfileEffect.NavigateToLogout -> onLogout()
             ProfileEffect.SelectAvatar -> avatarPicker.launch("image/*")
             ProfileEffect.ShowAvatarUpdated -> onShowMessage(avatarUpdated)
-            is ProfileEffect.ShowAvatarUpdateFailed -> onShowMessage(effect.message ?: avatarUpdateFailed)
+            is ProfileEffect.ShowAvatarUpdateFailed -> onShowMessage(effect.message?.asString(context) ?: avatarUpdateFailed)
             ProfileEffect.ShowProfileRefreshError -> onShowMessage(profileRefreshFailed)
             is ProfileEffect.ShowLogoutError -> onShowMessage(logoutFailed)
         }
@@ -155,6 +155,7 @@ fun ProfileContent(
     }
     if (state.errorMessage != null && state.profile == null) {
         ProfileLoadError(
+            message = state.errorMessage.asString(),
             onRetry = { onEvent(ProfileEvent.OnRetryClicked) }
         )
         return
@@ -232,7 +233,10 @@ fun ProfileContent(
 }
 
 @Composable
-private fun ProfileLoadError(onRetry: () -> Unit) {
+private fun ProfileLoadError(
+    message: String = stringResource(R.string.profile_load_error_description),
+    onRetry: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -245,7 +249,7 @@ private fun ProfileLoadError(onRetry: () -> Unit) {
         ) {
             EmptyState(
                 title = stringResource(R.string.profile_load_error_title),
-                description = stringResource(R.string.profile_load_error_description),
+                description = message,
                 icon = Icons.Outlined.Refresh,
                 accentColor = Theme.colors.primary
             )

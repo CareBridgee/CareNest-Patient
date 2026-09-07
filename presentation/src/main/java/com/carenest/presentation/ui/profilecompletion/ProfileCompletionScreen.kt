@@ -68,7 +68,7 @@ fun ProfileCompletionScreen(
 
         state.errorMessage?.let {
             Text(
-                text = stringResource(R.string.profile_health_operation_failed_retry),
+                text = it.asString(),
                 color = Theme.colors.onPrimary,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
