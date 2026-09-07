@@ -3,11 +3,11 @@ package com.carenest.presentation.ui.chat
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.carenest.domain.model.chat.ChatMessage
-import com.carenest.domain.model.chat.ChatMessageType
-import com.carenest.domain.model.chat.MessageSender
-import com.carenest.domain.model.chat.MessageStatus
-import com.carenest.domain.model.chat.ChatParticipant
+import com.carenest.domain.model.ChatMessage
+import com.carenest.domain.model.ChatMessageType
+import com.carenest.domain.model.MessageSender
+import com.carenest.domain.model.MessageStatus
+import com.carenest.domain.model.ChatParticipant
 import com.carenest.domain.repository.ChatSocketRepository
 import com.carenest.domain.repository.ReservationSocketRepository
 import com.carenest.domain.repository.UserRepository
@@ -21,6 +21,7 @@ import com.carenest.presentation.core.mvi.DefaultEffectPublisher
 import com.carenest.presentation.core.mvi.DefaultStateHolder
 import com.carenest.presentation.core.mvi.EffectPublisher
 import com.carenest.presentation.core.mvi.StateHolder
+import com.carenest.presentation.core.util.toUiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.catch
@@ -105,8 +106,8 @@ class ChatViewModel @Inject constructor(
                     sendEffect(ChatEffect.ScrollToBottom)
                 }
                 .onFailure { throwable ->
-                    updateState { copy(isLoading = false, errorMessage = throwable.message) }
-                    sendEffect(ChatEffect.ShowError(throwable.message.orEmpty()))
+                    updateState { copy(isLoading = false, errorMessage = throwable.toUiText()) }
+                    sendEffect(ChatEffect.ShowError(throwable.toUiText()))
                 }
         }
     }
@@ -174,7 +175,7 @@ class ChatViewModel @Inject constructor(
                 }
                 .onFailure { throwable ->
                     updateState { copy(isSending = false) }
-                    sendEffect(ChatEffect.ShowError(throwable.message.orEmpty()))
+                    sendEffect(ChatEffect.ShowError(throwable.toUiText()))
                 }
         }
     }

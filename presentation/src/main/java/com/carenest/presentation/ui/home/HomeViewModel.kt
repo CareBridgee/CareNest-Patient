@@ -2,6 +2,8 @@ package com.carenest.presentation.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.carenest.domain.model.PreferredTime
+import com.carenest.domain.model.ServiceHistory
 import com.carenest.domain.model.home.HealthcareService
 import com.carenest.domain.usecase.home.GetServicesUseCase
 import com.carenest.domain.usecase.home.GetUserRequestHistoryUseCase
@@ -11,6 +13,7 @@ import com.carenest.presentation.core.mvi.DefaultEffectPublisher
 import com.carenest.presentation.core.mvi.DefaultStateHolder
 import com.carenest.presentation.core.mvi.EffectPublisher
 import com.carenest.presentation.core.mvi.StateHolder
+import com.carenest.presentation.core.util.toUiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -80,8 +83,8 @@ class HomeViewModel @Inject constructor(
                 val activeRequestResult = activeRequestDeferred.await()
                 
                 if (userResult.isFailure && servicesResult.isFailure && bookingResult.isFailure) {
-                    val errorMsg = userResult.exceptionOrNull()?.message ?: "Failed to load home data"
-                    updateState { copy(isLoading = false, isError = true, errorMessage = errorMsg) }
+                    val error = userResult.exceptionOrNull() ?: Exception("Failed to load home data")
+                    updateState { copy(isLoading = false, isError = true, errorMessage = error.toUiText()) }
                     return@launch
                 }
 
@@ -91,13 +94,13 @@ class HomeViewModel @Inject constructor(
 
                 val activeTrackingInfo = activeRequestResult.getOrNull()
                 val activeRequest = if (activeTrackingInfo != null) {
-                    com.carenest.domain.model.history.ServiceHistory(
+                    ServiceHistory(
                         serviceRequestId = activeTrackingInfo.requestId,
                         serviceTypeId = "", // Map properly if needed
                         serviceName = activeTrackingInfo.specialty,
                         serviceDescription = "",
                         preferredDate = activeTrackingInfo.estimatedArrivalTime,
-                        preferredTime = com.carenest.domain.model.history.PreferredTime(0, 0),
+                        preferredTime = PreferredTime(0, 0),
                         status = "ACCEPTED", // If we got tracking info, it's accepted or further
                         nurseId = activeTrackingInfo.nurseId,
                         nurseName = activeTrackingInfo.name,
@@ -127,7 +130,7 @@ class HomeViewModel @Inject constructor(
                     copy(
                         isLoading = false,
                         isError = true,
-                        errorMessage = e.message ?: "An unexpected error occurred"
+                        errorMessage = e.toUiText()
                     )
                 }
             }
@@ -146,7 +149,7 @@ class HomeViewModel @Inject constructor(
 
     private fun applyActiveRequestFilter(
         services: List<HealthcareService>,
-        activeRequest: com.carenest.domain.model.history.ServiceHistory?,
+        activeRequest: ServiceHistory?,
         query: String
     ): List<HealthcareService> {
         val trimmedQuery = query.trim()
