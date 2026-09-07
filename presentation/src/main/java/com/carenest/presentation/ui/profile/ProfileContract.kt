@@ -13,9 +13,12 @@ data class ProfileState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val isUpdatingAvatar: Boolean = false,
+    val isProcessingImage: Boolean = false,
     val isLoggingOut: Boolean = false,
     val errorMessage: String? = null,
-)
+) {
+    val isAvatarLoading: Boolean get() = isUpdatingAvatar || isProcessingImage
+}
 
 enum class ProfileGreeting { Morning, Day, Evening }
 
@@ -27,6 +30,7 @@ sealed interface ProfileEvent {
     data object OnSettingsClicked : ProfileEvent
     data object OnLogoutClicked : ProfileEvent
     data object OnEditAvatarClicked : ProfileEvent
+    data object OnImageProcessingStarted : ProfileEvent
     data class OnAvatarSelected(
         val fileName: String,
         val contentType: String,

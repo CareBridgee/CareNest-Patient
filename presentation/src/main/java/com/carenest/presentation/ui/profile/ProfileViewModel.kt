@@ -45,8 +45,11 @@ class ProfileViewModel @Inject constructor(
             ProfileEvent.OnSettingsClicked -> sendEffect(ProfileEffect.NavigateToSettings)
             ProfileEvent.OnLogoutClicked -> performLogout()
             ProfileEvent.OnEditAvatarClicked -> {
-                if (!currentState.isUpdatingAvatar) sendEffect(ProfileEffect.SelectAvatar)
+                if (!currentState.isUpdatingAvatar && !currentState.isProcessingImage) {
+                    sendEffect(ProfileEffect.SelectAvatar)
+                }
             }
+            ProfileEvent.OnImageProcessingStarted -> updateState { copy(isProcessingImage = true) }
             is ProfileEvent.OnAvatarSelected -> updateAvatar(event)
             ProfileEvent.OnRetryClicked -> loadProfile(refresh = false)
             ProfileEvent.OnRefreshProfile -> loadProfile(refresh = currentState.profile != null)
@@ -126,7 +129,7 @@ class ProfileViewModel @Inject constructor(
 
     private fun updateAvatar(event: ProfileEvent.OnAvatarSelected) {
         if (currentState.isUpdatingAvatar) return
-        updateState { copy(isUpdatingAvatar = true) }
+        updateState { copy(isUpdatingAvatar = true, isProcessingImage = false) }
         viewModelScope.launch {
             updateProfileAvatar(event.fileName, event.contentType, event.bytes).fold(
                 onSuccess = {

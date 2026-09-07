@@ -93,6 +93,7 @@ fun ProfileScreen(
     val coroutineScope = rememberCoroutineScope()
     val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
+        viewModel.onEvent(ProfileEvent.OnImageProcessingStarted)
         coroutineScope.launch {
             runCatching { withContext(Dispatchers.IO) { context.readAvatar(uri) } }.fold(
                 onSuccess = { image ->
@@ -197,7 +198,7 @@ fun ProfileContent(
                 userName = state.userName,
                 userRole = state.userRole,
                 userAvatarUrl = state.userAvatarUrl,
-                isUpdatingAvatar = state.isUpdatingAvatar,
+                isUpdatingAvatar = state.isAvatarLoading,
                 onEditAvatarClick = { onEvent(ProfileEvent.OnEditAvatarClicked) }
             )
 
