@@ -57,7 +57,7 @@ fun ProfileLoadingShimmer(step: ProfileStep) {
                 ProfileStep.CurrentMedications -> MedicationsShimmer()
                 ProfileStep.MedicalHistory -> MedicalHistoryShimmer()
                 ProfileStep.MobilityStatus -> MobilityShimmer()
-                ProfileStep.EmergencyContact -> EmergencyContactShimmer()
+                ProfileStep.EmergencyContact , ProfileStep.FinalStep -> EmergencyContactShimmer()
             }
         }
 
